@@ -1,11 +1,10 @@
-version: '2.2'
+version: "3.7"
 
 services:
 
   # REF: https://thingsboard.io/docs/user-guide/install/docker/?ubuntuThingsboardQueue=kafka
 
   zookeeper:
-    restart: always
     image: "zookeeper:3.5"
     ports:
       - "2181:2181"
@@ -14,7 +13,6 @@ services:
       ZOO_SERVERS: server.1=zookeeper:2888:3888;zookeeper:2181
 
   kafka:
-    restart: always
     image: wurstmeister/kafka
     depends_on:
       - zookeeper
@@ -30,8 +28,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
   mytb:
-    restart: always
-    image: "thingsboard/tb-postgres"
+    image: "thingsboard/tb-cassandra"
     depends_on:
       - kafka
     ports:
@@ -42,5 +39,9 @@ services:
       TB_QUEUE_TYPE: kafka
       TB_KAFKA_SERVERS: kafka:9092
     volumes:
-      - ~/.mytb-data:/data
-      - ~/.mytb-logs:/var/log/thingsboard
+      - mytb-data:/data
+      - mytb-logs:/var/log/thingsboard
+
+volumes:
+  mytb-data:
+  mytb-logs:
