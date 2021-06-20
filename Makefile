@@ -27,7 +27,7 @@ workspace:
 _build:
 	@docker pull thingsboard/tb-cassandra
 	@docker run -it -v thingsboard_mytb-data:/data --rm thingsboard/tb-cassandra upgrade-tb.sh
-	@docker-compose rm mytb
+	@docker-compose rm -f mytb
 
 update: stop _build start
 
