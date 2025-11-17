@@ -1,10 +1,19 @@
+#!make
+
+ifneq (,$(wildcard ./.env))
+    include .env
+    export
+else
+$(error No se encuentra el fichero .env)
+endif
+
 help:
 	@echo Opciones:
 	@echo -------------------
 	@echo init
 	@echo start / stop / restart / stop-all
 	@echo workspace
-	@echo update
+	@echo upgrade
 	@echo stats
 	@echo clean
 	@echo -------------------
@@ -28,12 +37,11 @@ stop-all:
 workspace:
 	@docker-compose exec thingsboard-ce /bin/bash
 
-_build:
-	@docker pull thingsboard/tb-cassandra
-	@docker run -it -v thingsboard_mytb-data:/data --rm thingsboard/tb-cassandra upgrade-tb.sh
-	@docker-compose rm -f mytb
-
-update: stop _build start
+upgrade:
+	@docker pull thingsboard/tb-node:$$THINGSBOARD_VERSION
+	@docker compose stop thingsboard-ce
+	@docker compose run --rm -e UPGRADE_TB=true thingsboard-ce
+	@docker compose up -d
 
 stats:
 	@docker stats
