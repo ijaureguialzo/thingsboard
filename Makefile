@@ -7,16 +7,30 @@ else
 $(error No se encuentra el fichero .env)
 endif
 
-help:
+help: _header
+	${info }
 	@echo Opciones:
-	@echo -------------------
+	@echo ----------------------
 	@echo init
-	@echo start / stop / restart / stop-all
+	@echo start / stop / restart
 	@echo workspace
 	@echo upgrade
 	@echo stats
 	@echo clean
-	@echo -------------------
+	@echo ----------------------
+
+_urls: _header
+	${info }
+	@echo -----------------------------------------------------
+	@echo [ThingsBoard] https://thingsboard.test
+	@echo [Mailpit] https://mailpit.thingsboard.test
+	@echo [Traefik] https://traefik.thingsboard.test/dashboard/
+	@echo -----------------------------------------------------
+
+_header:
+	@echo -----------
+	@echo ThingsBoard
+	@echo -----------
 
 init:
 	@docker compose run --rm -e INSTALL_TB=true -e LOAD_DEMO=$$LOAD_DEMO_DATA thingsboard-ce
@@ -30,9 +44,6 @@ stop:
 	@docker-compose stop
 
 restart: stop start
-
-stop-all:
-	@docker stop `docker ps -aq`
 
 workspace:
 	@docker-compose exec thingsboard-ce /bin/bash
@@ -48,12 +59,3 @@ stats:
 
 clean:
 	@docker-compose down -v --remove-orphans
-
-_urls:
-	${info }
-	@echo -----------------------------------------------------
-	@echo [ThingsBoard] https://thingsboard.test
-	@echo -----------------------------------------------------
-	@echo [Mailpit] https://mailpit.thingsboard.test
-	@echo [Traefik] https://traefik.thingsboard.test/dashboard/
-	@echo -----------------------------------------------------
