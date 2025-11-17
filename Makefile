@@ -1,12 +1,16 @@
 help:
 	@echo Opciones:
 	@echo -------------------
+	@echo init
 	@echo start / stop / restart / stop-all
 	@echo workspace
 	@echo update
 	@echo stats
 	@echo clean
 	@echo -------------------
+
+init:
+	@docker compose run --rm -e INSTALL_TB=true -e LOAD_DEMO=true thingsboard-ce
 
 _start-command:
 	@docker-compose up -d --remove-orphans
@@ -22,7 +26,7 @@ stop-all:
 	@docker stop `docker ps -aq`
 
 workspace:
-	@docker-compose exec mytb /bin/bash
+	@docker-compose exec thingsboard-ce /bin/bash
 
 _build:
 	@docker pull thingsboard/tb-cassandra
