@@ -51,6 +51,9 @@ clean:
 
 _urls:
 	${info }
-	@echo -------------------
-	@echo [ThingsBoard] http://localhost:8080
-	@echo -------------------
+	@echo -----------------------------------------------------
+	@echo [ThingsBoard] https://thingsboard.test
+	@echo -----------------------------------------------------
+	@echo [Mailpit] https://mailpit.thingsboard.test
+	@echo [Traefik] https://traefik.thingsboard.test/dashboard/
+	@echo -----------------------------------------------------

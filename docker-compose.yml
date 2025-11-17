@@ -1,5 +1,24 @@
 services:
 
+  traefik:
+    image: traefik:${TRAEFIK_VERSION:-3}
+    ports:
+      - "80:80"
+      - "443:443"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-dashboard.rule=Host(`${FQDN_TRAEFIK:-traefik.test}`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-dashboard.service=api@internal"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-dashboard.entrypoints=websecure"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-dashboard.tls=true"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+    depends_on:
+      - thingsboard-ce
+
   postgres:
     restart: always
     image: "postgres:${POSTGRES_VERSION}"
@@ -39,12 +58,18 @@ services:
   thingsboard-ce:
     restart: always
     image: "thingsboard/tb-node:${THINGSBOARD_VERSION}"
-    ports:
-      - "8080:8080"
-      - "7070:7070"
-      - "1883:1883"
-      - "8883:8883"
-      - "5683-5688:5683-5688/udp"
+    #    ports:
+    #      - "8080:8080"
+    #      - "7070:7070"
+    #      - "1883:1883"
+    #      - "8883:8883"
+    #      - "5683-5688:5683-5688/udp"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-thingsboard.rule=Host(`${FQDN_THINGSBOARD:-thingsboard.test}`)"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-thingsboard.entrypoints=websecure"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-thingsboard.tls=true"
+      - "traefik.http.services.${COMPOSE_PROJECT_NAME}-thingsboard.loadbalancer.server.port=8080"
     logging:
       driver: "json-file"
       options:
@@ -58,6 +83,15 @@ services:
     depends_on:
       - postgres
       - kafka
+
+  mailpit:
+    image: axllent/mailpit:${MAILPIT_VERSION:-latest}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-mailpit.rule=Host(`${FQDN_MAILPIT:-mailpit.test}`)"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-mailpit.entrypoints=websecure"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-mailpit.tls=true"
+      - "traefik.http.services.${COMPOSE_PROJECT_NAME}-mailpit.loadbalancer.server.port=8025"
 
 volumes:
   postgres-data:
