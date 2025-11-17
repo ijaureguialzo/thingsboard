@@ -19,3 +19,7 @@ entryPoints:
 
   websecure:
     address: ":443"
+  mqtt:
+    address: ":1883"
+  mqtts:
+    address: ":8883"

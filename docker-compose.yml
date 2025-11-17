@@ -5,6 +5,8 @@ services:
     ports:
       - "80:80"
       - "443:443"
+      - "1883:1883"
+      - "8883:8883"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     labels:
@@ -59,17 +61,26 @@ services:
     restart: always
     image: "thingsboard/tb-node:${THINGSBOARD_VERSION}"
     #    ports:
-    #      - "8080:8080"
     #      - "7070:7070"
-    #      - "1883:1883"
-    #      - "8883:8883"
     #      - "5683-5688:5683-5688/udp"
     labels:
       - "traefik.enable=true"
+      # HTTP Router
       - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-thingsboard.rule=Host(`${FQDN_THINGSBOARD:-thingsboard.test}`)"
       - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-thingsboard.entrypoints=websecure"
       - "traefik.http.routers.${COMPOSE_PROJECT_NAME}-thingsboard.tls=true"
       - "traefik.http.services.${COMPOSE_PROJECT_NAME}-thingsboard.loadbalancer.server.port=8080"
+      # MQTT TCP Router
+      - "traefik.tcp.routers.${COMPOSE_PROJECT_NAME}-mqtt.rule=HostSNI(`*`)"
+      - "traefik.tcp.routers.${COMPOSE_PROJECT_NAME}-mqtt.entrypoints=mqtt"
+      - "traefik.tcp.routers.${COMPOSE_PROJECT_NAME}-mqtt.service=${COMPOSE_PROJECT_NAME}-mqtt-service"
+      - "traefik.tcp.services.${COMPOSE_PROJECT_NAME}-mqtt-service.loadbalancer.server.port=1883"
+      # MQTTS TCP Router (opcional, para MQTT sobre TLS)
+      - "traefik.tcp.routers.${COMPOSE_PROJECT_NAME}-mqtts.rule=HostSNI(`${FQDN_MQTT:-mqtt.thingsboard.test}`)"
+      - "traefik.tcp.routers.${COMPOSE_PROJECT_NAME}-mqtts.entrypoints=mqtts"
+      - "traefik.tcp.routers.${COMPOSE_PROJECT_NAME}-mqtts.tls=true"
+      - "traefik.tcp.routers.${COMPOSE_PROJECT_NAME}-mqtts.service=${COMPOSE_PROJECT_NAME}-mqtts-service"
+      - "traefik.tcp.services.${COMPOSE_PROJECT_NAME}-mqtts-service.loadbalancer.server.port=8883"
     logging:
       driver: "json-file"
       options:
