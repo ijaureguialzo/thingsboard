@@ -19,7 +19,7 @@ help:
 	@echo -------------------
 
 init:
-	@docker compose run --rm -e INSTALL_TB=true -e LOAD_DEMO=true thingsboard-ce
+	@docker compose run --rm -e INSTALL_TB=true -e LOAD_DEMO=$$LOAD_DEMO_DATA thingsboard-ce
 
 _start-command:
 	@docker-compose up -d --remove-orphans
