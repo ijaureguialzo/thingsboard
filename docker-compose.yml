@@ -1,7 +1,8 @@
 services:
+
   postgres:
     restart: always
-    image: "postgres:16"
+    image: "postgres:${POSTGRES_VERSION}"
     ports:
       - "5432"
     environment:
@@ -9,9 +10,10 @@ services:
       POSTGRES_PASSWORD: postgres
     volumes:
       - postgres-data:/var/lib/postgresql/data
+
   kafka:
     restart: always
-    image: bitnamilegacy/kafka:4.0
+    image: bitnamilegacy/kafka:${KAFKA_VERSION}
     ports:
       - 9092:9092 #to localhost:9092 from host machine
       - 9093 #for Kraft
@@ -33,9 +35,10 @@ services:
       KAFKA_CFG_SEGMENT_BYTES: "26214400"
     volumes:
       - kafka-data:/bitnami
+
   thingsboard-ce:
     restart: always
-    image: "thingsboard/tb-node:4.2.1"
+    image: "thingsboard/tb-node:${THINGSBOARD_VERSION}"
     ports:
       - "8080:8080"
       - "7070:7070"
